@@ -1,6 +1,8 @@
 # SEPA group 20 || ChatGPT Unveil the Myths
 ### Project Folder Structure
 
+### API
+Contains files for managing the ChatGPT OpenAI API
 ### Dbmanagers
 Contains files for managing SQL queries  (we might not need this)
 ### GUI
