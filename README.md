@@ -1,4 +1,5 @@
 # SEPA group 20 || ChatGPT Unveil the Myths
+---
 ### Project Folder Structure
 
 ### API
