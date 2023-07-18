@@ -1,11 +1,13 @@
 # SEPA group 20 || ChatGPT Unveil the Myths
 ### Project Folder Structure
 
+### Dbmanagers
+Contains files for managing SQL queries  (we might not need this)
 ### GUI
-Graphical User Interface directory used to hold everything relating to interface.
+Contains files for Graphical User Interface (GUI) directory used to hold everything relating to interface design.
 ### Schema
 Contains SQL files to create a database with the appropriate schema.
-### Dbmanagers
-Contains scripts for managing SQL queries  (we might not need this)
 ### Test
-Contains scripts for testing the application.
+Contains files for testing the application.
+### Visualisations
+Contains files for executing data visualisations.
