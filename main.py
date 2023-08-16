@@ -2,7 +2,7 @@ import os
 import openai
 import time
 
-#openai.api_key = "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"
+#openai.api_key = 
 
 #Below is a basic code to open the API key file which will later be modify to store key
 #openai.api_key = open("keyfile.txt", "r").read().strip('\n')
@@ -17,7 +17,7 @@ print("1 = Question Dataset")
 print("2 = Chatbot")
 user_choice = input()
 if user_choice == 1:
-    openai.api_key = "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"
+    
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": "You are a helpful assistant."}]
