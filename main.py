@@ -46,7 +46,7 @@ print("Type 1 for Chatbot")
 print("Type 2 for Dataset insertion")
 user_choice = input()
 
-if user_choice == 1:
+if user_choice == "1":
     call_chat(API_Key)
-elif user_choice == 2:
+elif user_choice == "2":
     call_dataset(API_Key)
