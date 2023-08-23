@@ -5,7 +5,7 @@
 ### API
 Contains files for managing the ChatGPT OpenAI API
 ### Dbmanagers
-Contains files for managing SQL queries  (we might not need this)
+Contains files for managing SQL queries 
 ### GUI
 Contains files for Graphical User Interface (GUI) directory used to hold everything relating to interface design.
 ### Schema
