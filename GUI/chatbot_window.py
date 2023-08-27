@@ -10,6 +10,12 @@ from functools import partial
 class chatbot_window(ctk.CTkToplevel):
     def __init__(self):
         super().__init__()
+
+        def enter_chat(self, chatVal):
+            #TODO Enter chat as the button is pressed
+            #TODO 
+            text = chatVal.get()
+            txt_box.insert("insert", text)
         self.title("Chatbot Module")
         self.geometry("800x600")
         greeting = ctk.CTkLabel(
@@ -46,7 +52,7 @@ class chatbot_window(ctk.CTkToplevel):
 
         self.title("ChatBOT")
         #Text box to update the chat, also stores the chat with the API
-        self.txt_box = ctk.CTkTextbox(
+        txt_box = ctk.CTkTextbox(
             self,
             height=400, 
             width=500
@@ -63,7 +69,7 @@ class chatbot_window(ctk.CTkToplevel):
         enter_chat = ctk.CTkButton(
             self,
             text="Chat",
-            command=partial(self.enter_chat, self.chatVal, self.txt_box)
+            command=partial(self.enter_chat, self.chatVal)
         ).pack()
         
 
@@ -87,12 +93,6 @@ class chatbot_window(ctk.CTkToplevel):
     def modify_param(self):
         print("Modify")
         self.clear_window()
-
-    def enter_chat(self, chatVal, txt_box):
-        #TODO Enter chat as the button is pressed
-        #TODO 
-        text = chatVal.get()
-        self.txt_box.insert("0.0", "Hello")
 
     # Set the version that is used bny the chatbot
     def set_version(self, ver):

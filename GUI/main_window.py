@@ -7,8 +7,18 @@ from GUI.history_window import history_window
 class main_window(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.main_frame = ctk.CTkFrame(self, corner_radius=0)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.main_label = ctk.CTkLabel(
+            self.main_frame,
+            text="CustomTkinter\nMain Page",
+            font=ctk.CTkFont(size=20, weight="bold"))
+        
+        self.main_label.grid(row=0, column=0, padx=30, pady=(30, 15))
+        self.back_button = ctk.CTkButton(self.main_frame, text="Back", command=self.back_event, width=200)
+        self.back_button.grid(row=1, column=0, padx=30, pady=(15, 15))
 
-        self.title("Chat GPT Assistant")
+        """ self.title("Chat GPT Assistant")
         self.geometry("800x600")
         greeting_lbl = ctk.CTkLabel(
             self,
@@ -32,7 +42,7 @@ class main_window(ctk.CTk):
             text="History",
             command=self.question_history
         ).pack()
-
+ """
     #Function for selecting file
     #Only takes in .csv and .json files as an argument
     def select_file(self):
