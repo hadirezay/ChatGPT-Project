@@ -4,7 +4,7 @@ import time
 import csv
 
 
-# Below is a basic code to open the API key file which will later be modify to store key
+# Below is a basic code to open the API key file which will later be integrated with UI
 # openai.api_key = open("keyfile.txt", "r").read().strip('\n')
 
 # Below function is for dataset module
@@ -25,17 +25,29 @@ def call_dataset(key):
         print("Answer: ", response['choices'][0]['text'])
         print("\n")
 
-#Chatbot function
+#Below function is for Chatbot module
 def call_chat(key):
+    user_model_choice = ""
+    print("Select Language model")
+    print("Press 1 for gpt-4")
+    print("Press 2 for gpt-3.5-turbo")
+    print("Or Enter a language model, follow OpenAI's Model endpoint compatibility: https://platform.openai.com/docs/models/model-endpoint-compatibility")
+    option = input("Language model choice: ")
+    if option == "1":
+        user_model_choice = "gpt-4"
+    elif option == "2":
+        user_model_choice = "gpt-3.5-turbo"
     while True:
         openai.api_key = key
         # user_input = input("User: ")
         completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model=user_model_choice,
             messages=[{"role": "user", "content": input("User: ")}]
         )
         response = completion.choices[0].message.content
         print("ChatGPT:", response)
+
+
 
 # Main
 print("Group 20 - OpenAI chat & completion Home Page")
