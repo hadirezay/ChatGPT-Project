@@ -1,172 +1,82 @@
 from typing import Optional, Tuple, Union
 import customtkinter as ctk
 from functools import partial
+import openai
 
 #Needed imports
 # SQLAlchemy for inserting data into the database
 # Import for openAI API, in order to load and start the chat, as well as to set appropriate parameters
 
 class chatbot_window(ctk.CTkFrame):
-    def __init__(self, master):
+    def __init__(self, master, api_key):
         super().__init__(master)
-        self.title = ctk.CTkLabel(self, text="ChatBot Module", width=120,height=25)
-        self.title.grid(row=0, column=0, padx=20, pady=10)
 
-        self.model_btn = ctk.CTkButton(self, text="Select Model", command=self.model_window)
-        self.model_btn.grid(row=1, column=0, padx=20, pady=10)
+        self.api_key = api_key
 
-        self.param_btn = ctk.CTkButton(self, text="Modify Parameters")
-        self.param_btn.grid(row=2, column=0, padx=20, pady=10)
-
-        self.execute_btn = ctk.CTkButton(self, text="Execute Chat")
-        self.execute_btn.grid(row=3, column=0, padx=20, pady=10)
-
-        self.model_frame = model_frame(self)
-
-    def model_window(self):
-        self.grid_forget()
-        self.model_frame.grid(row=0, column=0, sticky="nsew")
+        self.query_label=ctk.CTkLabel(
+            self,
+            anchor="w",
+            height=50, 
+            text="Enter Querry", 
+            font=("Arial", 16))
         
+        self.query_label.grid(row=0, column=0)
 
-class model_frame(ctk.CTkFrame):
-     def __init__(self, master):
-        super().__init__(master)
-        self.title = ctk.CTkLabel(self, text="Select Version", width=120,height=25)
-        self.title.grid(row=0, column=0, padx=20, pady=10)
-
-        self.model_btn = ctk.CTkButton(self, text="3.5")
-        self.model_btn.grid(row=1, column=0, padx=20, pady=10)
-
-        self.param_btn = ctk.CTkButton(self, text="4.0")
-        self.param_btn.grid(row=2, column=0, padx=20, pady=10)
-
-
-class param_frame(ctk.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
-        self.title = ctk.CTkLabel(self, text="Modify Paramaters", width=120,height=25)
-        self.title.grid(row=0, column=0, padx=20, pady=10)
-
-        self.model_btn = ctk.CTkButton(self, text="3.5")
-        self.model_btn.grid(row=1, column=0, padx=20, pady=10)
-
-        self.param_btn = ctk.CTkButton(self, text="4.0")
-        self.param_btn.grid(row=2, column=0, padx=20, pady=10)
-
-class chatting_frame(ctk.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
-
-        self.chat_box = ctk.CTkTextbox(self, height=400, width=500)
-        self.chat_box.grid(row=0, column=0, padx=10, pady=10)
-
-        self.chat_entry = ctk.CTkEntry(
-            self,
-            placeholder_text="Enter a chat here"
-        ).grid(row=1, column=0, padx=10, pady=10)
-
-        self.enter_btn = ctk.CTkButton(
-            self,
-            text="Enter Chat",
-            command=self.enter_chat
-        ).grid(row=1, column=0, padx=20, pady=10)
-
-    def enter_chat(self):
-        print('Chat Entered')
-        
-  
-
-""" class chatbot_window(ctk.CTkToplevel):
-    def __init__(self):
-        super().__init__()
-
-        def enter_chat(self, chatVal):
-            #TODO Enter chat as the button is pressed
-            #TODO 
-            text = chatVal.get()
-            txt_box.insert("insert", text)
-        self.title("Chatbot Module")
-        self.geometry("800x600")
-        greeting = ctk.CTkLabel(
-            self,
-            text="Chat Bot Module"
-        ).pack()
-
-        model_btn = ctk.CTkButton(
-            self,
-            text="Model Version",
-            command=self.model_select
-        ).pack()
-
-        param_btn = ctk.CTkButton(
-            self,
-            text="Modify Parameters",
-            command=self.modify_param
-        ).pack()
-
-        execute_btn = ctk.CTkButton(
+        self.query_text = ctk.CTkTextbox(
             self, 
-            text="Execute Chat", 
-            command=self.start_chat
-        ).pack()
-
-    #Starts chat upon button press of the Execue Button
-    def start_chat(self):
-        #TODO Clear the window
-        #TODO while true loop for the chatbot
-        #TODO Insert 
-
-        #Iterates through every widget within the frame, then destroys it
-        self.clear_window()
-
-        self.title("ChatBOT")
-        #Text box to update the chat, also stores the chat with the API
-        txt_box = ctk.CTkTextbox(
-            self,
-            height=400, 
-            width=500
-        ).pack()
-
-        self.chatVal = ctk.StringVar()
-
-        entry = ctk.CTkEntry(
-            self,
-            placeholder_text="Enter a chat here",
-            textvariable = self.chatVal
-        ).pack()
-
-        enter_chat = ctk.CTkButton(
-            self,
-            text="Chat",
-            command=partial(self.enter_chat, self.chatVal)
-        ).pack()
+            border_color="black", 
+            border_width=2
+        )
+        self.query_text.grid(row=1, column=0, padx=2, pady=2, sticky="nsew")
         
+        self.chat_frame_button_submit=ctk.CTkButton(
+            self, 
+            text="Submit",
+            command=self.submit_text
+        )
+        self.chat_frame_button_submit.grid(row=2, column=0, sticky="n")
+        
+        self.input_param_frame=ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.input_param_frame.grid_columnconfigure(0, weight=1)
+        self.input_param_frame.grid(row=1, column=1, padx=5, pady=45, sticky="nsew")
+        
+        # Parameter frame
 
-    def model_select(self):
-        print("Model")
-        self.clear_window()
+        self.param_label=ctk.CTkLabel(self.input_param_frame, width=200, anchor="w", height=50, text="Parameters", font=("Arial", 16))
+        self.param_label.grid(row=1, column=0)
+        self.param_text=ctk.CTkTextbox(self.input_param_frame, width=200, height=50, corner_radius=2, border_color="black", border_width=2 )
+        self.param_text.grid(row=2, column=0, pady=5, sticky="n" )
+        self.model_label=ctk.CTkLabel(self.input_param_frame, width=200, anchor="w", height=50, text="GPT Model", font=("Arial", 16))
+        self.model_label.grid(row=3, column=0)
+        self.model_select_menu = ctk.CTkOptionMenu(self.input_param_frame, values=["gpt-3.5-turbo", "gpt-4"])
+        self.model_select_menu.grid(row=4, column=0, pady=5, sticky="w" )
 
-        title_lbl = ctk.CTkLabel(
-            self,
-            text="ChatBot Module"
-        ).pack()
-        module35_btn = ctk.CTkButton(
-            self,
-            text="3.5"
-        ).pack()
-        module4_btn = ctk.CTkButton(
-            self,
-            text="4.0"
-        ).pack()
+        # Response frame
 
-    def modify_param(self):
-        print("Modify")
-        self.clear_window()
+        self.response_frame=ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.response_frame.grid_columnconfigure(0, weight=1)
+        self.response_frame.grid(row=3, column=0, padx=20, pady=20, sticky="nsew")
+        self.response_label=ctk.CTkLabel(self.response_frame, anchor="w", height=50, text="Querry Response", font=("Arial", 16))
+        self.response_label.grid(row=0, column=0)
+        self.response_text = ctk.CTkTextbox(self.response_frame, border_color="black", border_width=2)
+        self.response_text.grid(row=1, column=0, padx=2, pady=2, sticky="nsew")
+        self.response_text.configure(state="disabled")
+        
+        self.response_frame_button_submit=ctk.CTkButton(self.response_frame, text="Save & Clear",state="disabled")
+        self.response_frame_button_submit.grid(row=4, column=0, pady=10, sticky="n")
 
-    # Set the version that is used bny the chatbot
-    def set_version(self, ver):
-        print(ver)
+        self.rate_select_menu = ctk.CTkOptionMenu(self, values=["Rating","0","1", "2","3","4","5"])
+        self.rate_select_menu.grid(row=3, column=1, pady=5, sticky="w" )
+    
 
-    def clear_window(self):
-        for widget in self.winfo_children():
-            widget.destroy() """
+    def submit_text(self):
+        openai.api_key = self.api_key
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt="Say Hello",
+            max_tokens=100,
+            temperature=0
+        )
+
+        print("Answer: ", response['choices'][0]['text'])
+
