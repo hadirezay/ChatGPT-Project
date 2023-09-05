@@ -1,0 +1,80 @@
+import os
+import openai
+import json
+
+# Initialize an empty list to store questions and responses
+question_response_log = []
+
+# Check if the JSON file already exists
+if os.path.isfile("chat_log.json"):
+    # If it exists, load the existing data
+    with open("chat_log.json", "r") as json_file:
+        try:
+            question_response_log = json.load(json_file)
+        except json.decoder.JSONDecodeError:
+            # Handle the case where the file is empty or not valid JSON
+            question_response_log = []
+
+
+# Below function is for Chatbot module
+def call_chat(key):
+    user_model_choice = ""
+    print("Select Language model")
+    print("Press 1 for gpt-4")
+    print("Press 2 for gpt-3.5-turbo")
+    print(
+        "Or Enter a language model, follow OpenAI's Model endpoint compatibility: https://platform.openai.com/docs/models/model-endpoint-compatibility")
+
+    option = input("Language model choice: ")
+
+    if option == "1":
+        user_model_choice = "gpt-4"
+    elif option == "2":
+        user_model_choice = "gpt-3.5-turbo"
+
+    while True:
+        openai.api_key = key
+        user_input = input("User: ")
+
+        if user_input.lower() == "exit":
+            # End the chatbot session and save the conversation log
+            with open("chat_log.json", "w") as json_file:
+                json.dump(question_response_log, json_file, indent=4)
+            print("Chat log has been updated and saved. Ending the session.")
+            break
+
+        # Store the user's question
+        question_response_log.append({
+            "role": "user",
+            "content": user_input
+        })
+
+        completion = openai.ChatCompletion.create(
+            model=user_model_choice,
+            messages=[{"role": "user", "content": user_input}]
+        )
+        response = completion.choices[0].message.content
+
+        # Store the AI's response
+        question_response_log.append({
+            "role": "AI",
+            "content": response
+        })
+
+        print("ChatGPT:", response)
+
+
+# Main
+print("Group 20 - OpenAI chat & completion Home Page")
+API_Key = input("Insert your API KEY: ")
+
+print("Choose module")
+print("Type 1 for Chatbot")
+print("Type 2 for Dataset insertion")
+user_choice = input()
+
+if user_choice == "1":
+    call_chat(API_Key)
+elif user_choice == "2":
+    # You can add a similar function for dataset insertion here
+    pass
