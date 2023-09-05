@@ -83,11 +83,27 @@ class main_window(ctk.CTk):
         self.verify_button = ctk.CTkButton(self.home_frame, text="Verify Key", command=self.verify_key, fg_color="white", text_color="black")
         self.verify_button.grid(row=3, column=0, padx=20, pady=10)
 
+        self.settings_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.settings_frame.grid_columnconfigure(0, weight=1)
+        
+        self.settings_frame_label = ctk.CTkLabel(self.settings_frame, font=("Arial", 30), text="Settings")
+        self.settings_frame_label.grid(row=0, column=0, padx=20, pady=10)
+        
+        self.appearance_mode_menu = ctk.CTkOptionMenu(self.settings_frame, values=["System", "Light", "Dark"],
+                                                                command=self.change_appearance_mode_event)
+        self.appearance_mode_menu.grid(row=2, column=0, padx = 20, sticky="w" )
+
         self.chatbot_frame = chatbot_window(self, self.api_key)
         self.chatbot_frame.grid_columnconfigure(0, weight=1)
 
         self.history_frame = history_window(self)
         self.history_frame.grid_columnconfigure(0, weight=1)
+
+        
+
+    def change_appearance_mode_event(self, new_appearance_mode):
+        ctk.set_appearance_mode(new_appearance_mode)
+
 
     def verify_key(self):
         api_key = self.api_val.get()
@@ -103,10 +119,10 @@ class main_window(ctk.CTk):
 
         # If a response is given, enable all buttons and set the API KEY as the val verified
         if response['choices'][0]['text'] != "":
-            self.home_button.configure(state="enabled")
             self.chatbot_button.configure(state="enabled")
             self.history_button.configure(state="enabled")
             self.api_key = self.api_val.get()
+            self.frame_select("ChatBot")
 
     #Function for selecting file
     #Only takes in .csv and .json files as an argument

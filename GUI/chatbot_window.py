@@ -2,6 +2,9 @@ from typing import Optional, Tuple, Union
 import customtkinter as ctk
 from functools import partial
 import openai
+from Database.models import Question, Answer, History, session;
+from tkinter import messagebox
+import ctypes
 
 #Needed imports
 # SQLAlchemy for inserting data into the database
@@ -11,13 +14,13 @@ class chatbot_window(ctk.CTkFrame):
     def __init__(self, master, api_key):
         super().__init__(master)
 
-        self.api_key = api_key
+        self.api_key = "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"
 
         self.query_label=ctk.CTkLabel(
             self,
             anchor="w",
             height=50, 
-            text="Enter Querry", 
+            text="Enter Query", 
             font=("Arial", 16))
         
         self.query_label.grid(row=0, column=0)
@@ -70,13 +73,90 @@ class chatbot_window(ctk.CTkFrame):
     
 
     def submit_text(self):
-        openai.api_key = self.api_key
-        response = openai.Completion.create(
-            model="text-davinci-003",
-            prompt="Say Hello",
-            max_tokens=100,
-            temperature=0
+        messages = [{"role": "system", "content": "You are a kind helpful assistant."}]
+        entered_text = str(self.query_text.get('0.0', 'end'))
+
+        # Checks for 
+        if len(entered_text) <= 1:
+            messagebox.showwarning("ChatBot", "Querry is Blank!")
+            ctypes.windll.user32.MessageBoxW(0, "Querry is Blank!", "ChatBot", 0)        
+            return
+        else:
+            pass
+
+        model_ver=str(self.model_select_menu.get())
+        messages.append({"role": "user", "content": entered_text})
+        chat = openai.ChatCompletion.create(model=model_ver, messages=messages)
+        reply = chat.choices[0].message.content
+
+        self.response_text.configure(state="normal")
+        self.response_text.insert("insert", f"{reply} \n\n")
+        self.response_text.configure(state="disabled")
+        self.response_frame_button_submit.configure(state="normal")
+        
+        param = self.param_text.get('0.0', 'end')
+
+        self.sql_insert(entered_text, model_ver, param)
+
+    def sql_insert(self,question, model_ver, param):
+        question_obj = Question(
+            Question=question,
+            Model_version=model_ver,
+            parameter=param
         )
 
-        print("Answer: ", response['choices'][0]['text'])
+        session.add(question_obj)
+        session.commit()
+
+    def answer_insert(self):
+        rating = self.rate_select_menu.get()
+        if rating == "Rating":
+            messagebox.showwarning("ChatBot", "Please Rate Response" )
+            return
+        
+        # Obtain question id
+        question_text = str(self.query_text.get('0.0', 'end'))
+        q=session.query(Question).filter_by(Question=question_text).first()
+        question_id = q.Question_ID
+
+        response = str(self.response_text.get('0.0', 'end'))
+
+        answer = Answer(
+            Question_ID=question_id,
+            Answer=response,
+            Grading=rating
+        )
+
+        session.add(answer)
+        session.commit()
+
+        #Update history table
+        history = History(
+            Question_ID=question_id,
+            Answer_ID=answer.Answer_ID,
+            Question=question_text,
+            Answer=response,
+            Grading=rating,
+            Model_version=q.Model_version,
+            parameter=q.parameter
+        )
+
+        session.add(history)
+        session.commit()
+
+        self.response_frame_button_submit.configure(state="disabled")
+        self.clear_response()
+
+
+    def clear_query(self):
+        self.query_text.delete('1.0', 'end')
+
+    def clear_response(self):
+        self.response_text.configure(state="normal")
+        self.response_text.delete('1.0', 'end')
+        self.response_text.configure(state="disabled")
+        self.clear_query()
+        messagebox.showinfo("ChatBot", "Question and Response Saved")
+
+
 

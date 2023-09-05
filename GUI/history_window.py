@@ -12,3 +12,4 @@ class history_window(ctk.CTkFrame):
         self.history_check_frame=ctk.CTkFrame(self, corner_radius=0, fg_color="grey75")
         self.history_check_frame.grid_columnconfigure(0, weight=1)
         self.history_check_frame.grid(row=1, column=0, padx=20, pady=20, sticky="nsew")
+        
